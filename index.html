@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Texas Commercial Coating Territory Map | RoofCoat Leads</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺️</text></svg>">
-<link rel="stylesheet" href="vendor/leaflet/leaflet.css"/>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css" onerror="this.onerror=null;this.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'"/>
 <style>
   :root{
     --bg:#0f1722; --panel:#16212f; --panel2:#1c2a3b; --line:#2a3b52;
@@ -131,6 +131,7 @@
 </div>
 
 <script src="vendor/leaflet/leaflet.js"></script>
+<script>if(!window.L){document.write('<script src="https:\/\/unpkg.com\/leaflet@1.9.4\/dist\/leaflet.js"><\/script>')}</script>
 <script>
 /* ---------------------------------- data ---------------------------------- */
 const ZONES = {
