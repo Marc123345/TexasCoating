@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Texas Commercial Coating Territory Map | RoofCoat Leads</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺️</text></svg>">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css"/>
+<style>
+  :root{
+    --bg:#0f1722; --panel:#16212f; --panel2:#1c2a3b; --line:#2a3b52;
+    --text:#e8eef6; --muted:#93a4ba; --accent:#f5a623;
+    --c-core:#2f80ed; --c-east:#27ae60; --c-west:#e67e22;
+    --c-pocket:#9b59b6; --c-wtx:#e74c3c; --c-oil:#f1c40f;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;overflow:hidden}
+
+  header{
+    display:flex;align-items:center;gap:14px;padding:12px 20px;
+    background:linear-gradient(90deg,#101b29,#152438);border-bottom:1px solid var(--line);z-index:1200;flex-wrap:wrap;
+  }
+  .logo{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#e8842c);display:flex;align-items:center;justify-content:center;font-size:20px;flex:0 0 auto}
+  header h1{font-size:17px;font-weight:700;letter-spacing:.2px}
+  header .sub{font-size:12px;color:var(--muted);margin-top:2px}
+  .hdr-stats{margin-left:auto;display:flex;gap:18px}
+  .stat{text-align:right}
+  .stat b{display:block;font-size:17px;color:var(--accent)}
+  .stat span{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+
+  .wrap{flex:1;display:flex;min-height:0;position:relative}
+  #map{flex:1;background:#0b1320}
+
+  aside{
+    width:318px;flex:0 0 318px;background:var(--panel);border-right:1px solid var(--line);
+    overflow-y:auto;padding:14px;z-index:1100;
+  }
+  aside::-webkit-scrollbar{width:8px}
+  aside::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+
+  .side-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:14px 4px 8px}
+  .side-title:first-child{margin-top:2px}
+
+  .zone-card{
+    background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:border-color .15s, transform .1s;
+  }
+  .zone-card:hover{border-color:#3d557a}
+  .zone-card.off{opacity:.45}
+  .zone-head{display:flex;align-items:center;gap:9px}
+  .dot{width:12px;height:12px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 3px rgba(255,255,255,.06)}
+  .zone-head b{font-size:13.5px;flex:1}
+  .zone-head .cnt{font-size:11px;color:var(--muted);background:#22334a;border-radius:20px;padding:2px 8px}
+  .zone-card p{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.45}
+  .zone-actions{display:flex;gap:6px;margin-top:8px}
+  .zbtn{
+    font-size:11px;border:1px solid var(--line);background:transparent;color:var(--text);
+    border-radius:6px;padding:4px 9px;cursor:pointer;transition:background .15s;
+  }
+  .zbtn:hover{background:#25384f}
+
+  .note{
+    background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.35);
+    border-radius:10px;padding:10px 12px;font-size:11.5px;color:#f0d9ad;line-height:1.5;margin-top:14px;
+  }
+  .foot{margin-top:14px;font-size:10.5px;color:#5f7291;line-height:1.5}
+  .foot a{color:var(--accent);text-decoration:none}
+
+  /* Leaflet popup theming */
+  .leaflet-popup-content-wrapper{background:var(--panel2);color:var(--text);border-radius:10px;border:1px solid var(--line);box-shadow:0 8px 30px rgba(0,0,0,.5)}
+  .leaflet-popup-tip{background:var(--panel2)}
+  .leaflet-popup-content{margin:12px 14px;font:12.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  .pp h3{font-size:14px;margin-bottom:2px}
+  .pp .tag{display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:.6px;border-radius:20px;padding:2px 8px;margin-bottom:7px;color:#0d1420;font-weight:700}
+  .pp p{color:#c3d0e0}
+  .pp .dist{margin-top:6px;font-size:11px;color:var(--muted)}
+  .leaflet-container a.leaflet-popup-close-button{color:var(--muted)}
+
+  .leaflet-control-attribution{background:rgba(15,23,34,.8)!important;color:#5f7291!important}
+  .leaflet-control-attribution a{color:#7d94b5!important}
+  .leaflet-bar a{background:var(--panel2);color:var(--text);border-bottom:1px solid var(--line)}
+  .leaflet-bar a:hover{background:#25384f}
+
+  .city-label{
+    background:transparent;border:none;box-shadow:none;
+    color:#dbe6f3;font-size:10.5px;font-weight:600;text-shadow:0 1px 3px #000,0 0 6px #000;white-space:nowrap;
+  }
+
+  .mob-toggle{display:none}
+  @media (max-width:820px){
+    aside{position:absolute;left:0;top:0;bottom:0;transform:translateX(-100%);transition:transform .2s ease;box-shadow:8px 0 30px rgba(0,0,0,.5)}
+    aside.open{transform:translateX(0)}
+    .mob-toggle{
+      display:block;position:absolute;left:12px;top:12px;z-index:1150;
+      background:var(--panel2);border:1px solid var(--line);color:var(--text);
+      border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;
+    }
+    .hdr-stats{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🛡️</div>
+  <div>
+    <h1>Texas Commercial Coating — Territory Map</h1>
+    <div class="sub">US-75 corridor · North &amp; East Texas pockets · West Texas oil-rich expansion zones</div>
+  </div>
+  <div class="hdr-stats">
+    <div class="stat"><b id="stMarkets">0</b><span>Markets</span></div>
+    <div class="stat"><b>6</b><span>Zones</span></div>
+    <div class="stat"><b>~100&nbsp;mi</b><span>Corridor width</span></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <button class="mob-toggle" id="mobToggle">☰ Zones</button>
+  <aside id="sidebar">
+    <div class="side-title">Territory zones — click card to zoom, buttons to toggle</div>
+    <div id="zoneCards"></div>
+    <div class="note">
+      <b>Oil-rich zones:</b> the Permian Basin, the East Texas Oil Field / Haynesville belt, and the historic North Texas fields carry dense stocks of metal-roofed industrial buildings — pipe yards, tank farms, processing plants — with heavy sun and hail exposure. Prime commercial coating demand, minimal ad competition.
+    </div>
+    <div class="foot">
+      Prepared by <a href="https://roofcoatleads.com" target="_blank" rel="noopener">RoofCoat Leads</a> · radii are indicative and adjustable once live lead data shows where the best jobs come from.
+    </div>
+  </aside>
+  <div id="map"></div>
+</div>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script>
+/* ---------------------------------- data ---------------------------------- */
+const ZONES = {
+  core: {
+    name:"US-75 Corridor Core", color:"#2f80ed",
+    desc:"Sherman/Denison center line. Semiconductor build-out (TI + GlobiTech multi-billion-dollar plants) is driving new commercial construction north along US-75.",
+    center:[33.55,-96.58], zoom:10
+  },
+  east: {
+    name:"East Wing (50 mi)", color:"#27ae60",
+    desc:"Small-town commercial, ag buildings and light industrial from Bonham out to Paris.",
+    center:[33.5,-95.95], zoom:9
+  },
+  west: {
+    name:"West Wing (50 mi)", color:"#e67e22",
+    desc:"Gainesville is the anchor — I-35 warehouse and manufacturing stock — running out toward Bowie.",
+    center:[33.6,-97.35], zoom:9
+  },
+  pocket: {
+    name:"East Texas Pockets", color:"#9b59b6",
+    desc:"Poultry plants, dairy operations and food processing with large flat & metal roofs. Very little ad competition. Greenville links the pocket to the corridor along I-30.",
+    center:[33.08,-95.3], zoom:9
+  },
+  wtx: {
+    name:"West Texas Expansion", color:"#e74c3c",
+    desc:"Hail belt + brutal UV = constant coating demand. Cotton gins, grain elevators, feedlots, dairies, meatpacking and warehouse stock. Wichita Falls is the natural bridge from the current territory along US-82.",
+    center:[32.9,-100.6], zoom:6
+  },
+  oil: {
+    name:"Oil-Rich Zones", color:"#f1c40f",
+    desc:"Permian Basin, East Texas Oil Field / Haynesville belt, and historic North Texas fields. Dense metal-roofed industrial stock: pipe yards, tank batteries, compressor stations, processing plants.",
+    center:[32.2,-99.5], zoom:6
+  }
+};
+
+const CITIES = [
+  /* --- corridor core --- */
+  {n:"Sherman", z:"core", ll:[33.635,-96.609], b:"Territory center line. Home of the new TI semiconductor fabs — one of the largest industrial investments in Texas history.", star:true},
+  {n:"Denison", z:"core", ll:[33.755,-96.537], b:"Corridor co-anchor on US-75, just south of the Red River."},
+  {n:"Van Alstyne", z:"core", ll:[33.421,-96.577], b:"Fast-growing US-75 town on the corridor's southern half."},
+  {n:"Anna", z:"core", ll:[33.349,-96.548], b:"Northern edge of DFW Metroplex growth pushing up US-75."},
+  {n:"Melissa", z:"core", ll:[33.286,-96.573], b:"Southern tip of the corridor — Metroplex growth frontier."},
+
+  /* --- east wing --- */
+  {n:"Bonham", z:"east", ll:[33.577,-96.178], b:"Hub for small-town commercial, ag buildings and light industrial."},
+  {n:"Whitewright", z:"east", ll:[33.512,-96.393], b:"Corridor-adjacent small commercial."},
+  {n:"Leonard", z:"east", ll:[33.379,-96.247], b:"Ag and light commercial."},
+  {n:"Honey Grove", z:"east", ll:[33.583,-95.910], b:"Ag buildings along the TX-56/US-82 line."},
+  {n:"Wolfe City", z:"east", ll:[33.370,-96.070], b:"Small-town commercial."},
+  {n:"Commerce", z:"east", ll:[33.247,-95.900], b:"University town (Texas A&M–Commerce) with steady commercial base."},
+  {n:"Paris", z:"east", ll:[33.661,-95.556], b:"Eastern anchor — largest market on the east wing (~25k city, regional draw)."},
+
+  /* --- west wing --- */
+  {n:"Gainesville", z:"west", ll:[33.626,-97.133], b:"Western commercial anchor on I-35 — strong warehouse and manufacturing stock.", star:true},
+  {n:"Whitesboro", z:"west", ll:[33.656,-96.907], b:"US-82 commercial between Sherman and Gainesville."},
+  {n:"Collinsville", z:"west", ll:[33.561,-96.911], b:"Small commercial/ag."},
+  {n:"Pilot Point", z:"west", ll:[33.396,-96.960], b:"Horse-country ag buildings, north Denton County growth."},
+  {n:"Valley View", z:"west", ll:[33.489,-97.163], b:"I-35 corridor south of Gainesville."},
+  {n:"Muenster", z:"west", ll:[33.652,-97.376], b:"Dairy and ag processing."},
+  {n:"Nocona", z:"west", ll:[33.787,-97.726], b:"Boot/leather manufacturing heritage, light industrial."},
+  {n:"Bowie", z:"west", ll:[33.559,-97.849], b:"Western edge of the 50-mile wing, US-287 junction."},
+
+  /* --- east texas pockets --- */
+  {n:"Greenville", z:"pocket", ll:[33.138,-96.111], b:"I-30 connector between the corridor and the East Texas pocket. L3Harris and a real industrial base.", star:true},
+  {n:"Sulphur Springs", z:"pocket", ll:[33.138,-95.601], b:"Dairy capital of Texas — milk processing and food plants with big flat roofs."},
+  {n:"Mount Vernon", z:"pocket", ll:[33.189,-95.221], b:"I-30 ag and light commercial."},
+  {n:"Mount Pleasant", z:"pocket", ll:[33.157,-94.968], b:"Poultry processing hub (Pilgrim's Pride) — large industrial roof stock."},
+  {n:"Winnsboro", z:"pocket", ll:[32.958,-95.290], b:"Poultry and dairy operations."},
+  {n:"Pittsburg", z:"pocket", ll:[32.995,-94.966], b:"Poultry processing and feed mills."},
+
+  /* --- west texas expansion --- */
+  {n:"Wichita Falls", z:"wtx", ll:[33.914,-98.493], b:"~100 mi west of the current Bowie edge along US-82 — the natural first extension. Manufacturing base + Sheppard AFB.", star:true},
+  {n:"Abilene", z:"wtx", ll:[32.449,-99.733], b:"I-20 regional hub — warehouses, ag processing, Dyess AFB."},
+  {n:"San Angelo", z:"wtx", ll:[31.464,-100.437], b:"Regional ag/industrial hub — wool, ag processing, oilfield services."},
+  {n:"Lubbock", z:"wtx", ll:[33.578,-101.855], b:"~270k metro. Cotton gins, grain elevators, ag processing across the South Plains. Heart of the hail belt.", star:true},
+  {n:"Amarillo", z:"wtx", ll:[35.199,-101.845], b:"~270k metro. Feedlots, meatpacking, dairies — the Panhandle now holds one of the biggest dairy concentrations in the country."},
+
+  /* --- oil-rich zones --- */
+  {n:"Midland", z:"oil", ll:[31.997,-102.078], b:"Permian Basin HQ — office + oilfield service yards, tank farms, warehouses.", star:true},
+  {n:"Odessa", z:"oil", ll:[31.846,-102.368], b:"Permian's industrial workhorse — pipe yards, machine shops, processing."},
+  {n:"Andrews", z:"oil", ll:[32.319,-102.546], b:"Permian drilling country — oilfield service buildings."},
+  {n:"Seminole", z:"oil", ll:[32.719,-102.645], b:"Oil + irrigated ag mix on the Permian's north end."},
+  {n:"Big Spring", z:"oil", ll:[32.250,-101.478], b:"Refinery town on I-20 — heavy industrial roof stock."},
+  {n:"Snyder", z:"oil", ll:[32.718,-100.918], b:"Scurry County oilfields — service yards and compressor stations."},
+  {n:"Monahans", z:"oil", ll:[31.594,-102.892], b:"West Permian oilfield services."},
+  {n:"Pecos", z:"oil", ll:[31.423,-103.493], b:"Delaware Basin boom town — newest, most active drilling in the Permian."},
+  {n:"Longview", z:"oil", ll:[32.500,-94.740], b:"East Texas Oil Field anchor (~290k metro area) — fabrication, oilfield equipment, manufacturing.", star:true},
+  {n:"Kilgore", z:"oil", ll:[32.386,-94.876], b:"Historic heart of the East Texas Oil Field — oilfield service industry remains."},
+  {n:"Henderson", z:"oil", ll:[32.153,-94.799], b:"Oil + poultry mix — double demand profile."},
+  {n:"Carthage", z:"oil", ll:[32.157,-94.337], b:"Haynesville Shale gas hub — compressor stations and processing plants."},
+  {n:"Tyler", z:"oil", ll:[32.351,-95.301], b:"~240k metro — East Texas commercial anchor and oilfield legacy money."},
+  {n:"Burkburnett", z:"oil", ll:[34.098,-98.571], b:"Historic North Texas 'Boomtown' field just above Wichita Falls."},
+  {n:"Electra", z:"oil", ll:[34.029,-98.919], b:"'Pump Jack Capital of Texas' — legacy field with active service stock."},
+  {n:"Graham", z:"oil", ll:[33.107,-98.590], b:"Fort Worth Basin oil town — service yards, light industrial."},
+  {n:"Jacksboro", z:"oil", ll:[33.218,-98.159], b:"Fort Worth Basin / Barnett edge — gas infrastructure."}
+];
+
+/* semiconductor plants — special markers in the core */
+const PLANTS = [
+  {n:"Texas Instruments — Sherman fabs", ll:[33.687,-96.577], b:"Multi-fab semiconductor campus under construction — up to $30B+ build-out. Every supplier and contractor building around it needs roofs coated."},
+  {n:"GlobiTech / GlobalWafers", ll:[33.663,-96.643], b:"Silicon wafer plant — $5B investment anchoring Sherman's industrial growth."}
+];
+
+/* ------------------------------- map setup -------------------------------- */
+const map = L.map('map',{zoomControl:true, attributionControl:true}).setView([32.7,-98.6], 6);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  subdomains:'abcd', maxZoom:19
+}).addTo(map);
+
+const groups = {};
+Object.keys(ZONES).forEach(k => groups[k] = L.layerGroup().addTo(map));
+
+function popupHTML(c){
+  const z = ZONES[c.z];
+  return `<div class="pp">
+    <h3>${c.star ? "⭐ " : ""}${c.n}</h3>
+    <span class="tag" style="background:${z.color}">${z.name}</span>
+    <p>${c.b}</p>
+  </div>`;
+}
+
+function addCity(c){
+  const z = ZONES[c.z];
+  const r = c.star ? 9 : 6;
+  const m = L.circleMarker(c.ll,{
+    radius:r, color:"#0d1420", weight:1.5, fillColor:z.color, fillOpacity:.95
+  }).bindPopup(popupHTML(c));
+  m.bindTooltip(c.n,{permanent:true,direction:'right',offset:[8,0],className:'city-label'});
+  m.addTo(groups[c.z]);
+}
+CITIES.forEach(addCity);
+
+/* semiconductor plant markers */
+PLANTS.forEach(p=>{
+  const m = L.marker(p.ll,{
+    icon: L.divIcon({className:'', html:'<div style="font-size:20px;filter:drop-shadow(0 1px 3px #000)">🏭</div>', iconSize:[22,22], iconAnchor:[11,11]})
+  }).bindPopup(`<div class="pp"><h3>🏭 ${p.n}</h3><span class="tag" style="background:${ZONES.core.color}">Semiconductor build-out</span><p>${p.b}</p></div>`);
+  m.addTo(groups.core);
+});
+
+/* -------- territory shapes -------- */
+/* main corridor band: 50 mi east & west of US-75, Sherman/Denison center line */
+const corridor = L.polygon([
+  [33.92,-97.90],[33.92,-95.50],[33.20,-95.50],[33.20,-97.90]
+],{
+  color:"#2f80ed", weight:2, dashArray:"6 6", fillColor:"#2f80ed", fillOpacity:.06
+}).bindPopup(`<div class="pp"><h3>Primary Territory Band</h3><span class="tag" style="background:#2f80ed">≈100 mi wide</span><p>US-75 corridor with Sherman/Denison as the center line, extending ~50 miles east (to Paris) and ~50 miles west (to Bowie). Radius adjustable once live lead data shows where the best jobs come from.</p></div>`);
+corridor.addTo(groups.core);
+
+/* east texas pocket circle */
+L.circle([33.08,-95.25],{radius:60000, color:"#9b59b6", weight:2, dashArray:"6 6", fillColor:"#9b59b6", fillOpacity:.07})
+ .bindPopup(`<div class="pp"><h3>East Texas Pocket</h3><span class="tag" style="background:#9b59b6">Add-on zone</span><p>Poultry, dairy and food-processing belt — big flat & metal roofs, almost no ad competition targeting it.</p></div>`)
+ .addTo(groups.pocket);
+
+/* west texas metro circles */
+[[33.578,-101.855,"Lubbock / South Plains"],[35.199,-101.845,"Amarillo / Panhandle"],[33.914,-98.493,"Wichita Falls"],[32.449,-99.733,"Abilene"],[31.464,-100.437,"San Angelo"]].forEach(([la,lo,nm])=>{
+  L.circle([la,lo],{radius:55000,color:"#e74c3c",weight:1.5,dashArray:"4 6",fillColor:"#e74c3c",fillOpacity:.05})
+   .bindPopup(`<div class="pp"><h3>${nm}</h3><span class="tag" style="background:#e74c3c">Expansion market</span><p>Hail belt + high UV — steady commercial coating demand.</p></div>`)
+   .addTo(groups.wtx);
+});
+
+/* oil basin outlines */
+const permian = L.polygon([
+  [33.0,-103.6],[33.1,-101.6],[32.4,-100.7],[31.2,-101.0],[30.7,-102.6],[31.1,-104.0],[32.2,-104.1]
+],{color:"#f1c40f",weight:2,dashArray:"8 6",fillColor:"#f1c40f",fillOpacity:.05})
+.bindPopup(`<div class="pp"><h3>Permian Basin</h3><span class="tag" style="background:#f1c40f">Oil-rich zone</span><p>The most productive oilfield in the western hemisphere. Enormous stock of metal-roofed service yards, tank batteries, compressor stations and warehouses across Midland, Odessa, Andrews, Big Spring, Pecos and Monahans.</p></div>`);
+permian.addTo(groups.oil);
+
+const etxOil = L.polygon([
+  [32.75,-95.15],[32.75,-94.15],[31.95,-94.15],[31.95,-95.15]
+],{color:"#f1c40f",weight:2,dashArray:"8 6",fillColor:"#f1c40f",fillOpacity:.05})
+.bindPopup(`<div class="pp"><h3>East Texas Oil Field + Haynesville</h3><span class="tag" style="background:#f1c40f">Oil-rich zone</span><p>Historic giant field (Kilgore/Longview/Henderson) plus the Haynesville Shale gas belt around Carthage — fabrication shops, gas processing and compressor stations.</p></div>`);
+etxOil.addTo(groups.oil);
+
+const ntxOil = L.polygon([
+  [34.25,-99.05],[34.25,-98.05],[33.0,-98.0],[33.0,-98.75]
+],{color:"#f1c40f",weight:2,dashArray:"8 6",fillColor:"#f1c40f",fillOpacity:.05})
+.bindPopup(`<div class="pp"><h3>North Texas Oil Fields</h3><span class="tag" style="background:#f1c40f">Oil-rich zone</span><p>Historic Burkburnett/Electra fields and the Fort Worth Basin (Graham, Jacksboro). Closest oil-rich zone to the current territory — reachable via US-82/US-287.</p></div>`);
+ntxOil.addTo(groups.oil);
+
+/* -------------------------------- sidebar --------------------------------- */
+const counts = {};
+CITIES.forEach(c => counts[c.z]=(counts[c.z]||0)+1);
+counts.core += PLANTS.length;
+document.getElementById('stMarkets').textContent = CITIES.length + PLANTS.length;
+
+const cardsEl = document.getElementById('zoneCards');
+Object.entries(ZONES).forEach(([k,z])=>{
+  const card = document.createElement('div');
+  card.className='zone-card'; card.id='card-'+k;
+  card.innerHTML = `
+    <div class="zone-head">
+      <span class="dot" style="background:${z.color}"></span>
+      <b>${z.name}</b>
+      <span class="cnt">${counts[k]||0}</span>
+    </div>
+    <p>${z.desc}</p>
+    <div class="zone-actions">
+      <button class="zbtn" data-act="zoom" data-z="${k}">🔍 Zoom</button>
+      <button class="zbtn" data-act="toggle" data-z="${k}">👁 Show / hide</button>
+    </div>`;
+  card.addEventListener('click',e=>{
+    const btn = e.target.closest('.zbtn');
+    if(btn){
+      e.stopPropagation();
+      const key = btn.dataset.z;
+      if(btn.dataset.act==='zoom'){
+        if(!map.hasLayer(groups[key])){ groups[key].addTo(map); card.classList.remove('off'); }
+        map.flyTo(ZONES[key].center, ZONES[key].zoom, {duration:.9});
+      }else{
+        if(map.hasLayer(groups[key])){ map.removeLayer(groups[key]); card.classList.add('off'); }
+        else { groups[key].addTo(map); card.classList.remove('off'); }
+      }
+      return;
+    }
+    map.flyTo(z.center, z.zoom, {duration:.9});
+    if(window.innerWidth<=820) document.getElementById('sidebar').classList.remove('open');
+  });
+  cardsEl.appendChild(card);
+});
+
+/* hide city labels when zoomed way out to reduce clutter */
+function labelVisibility(){
+  const show = map.getZoom() >= 8;
+  document.querySelectorAll('.city-label').forEach(el=>{
+    el.style.display = show ? '' : 'none';
+  });
+}
+map.on('zoomend', labelVisibility);
+labelVisibility();
+
+/* mobile sidebar */
+document.getElementById('mobToggle').addEventListener('click',()=>{
+  document.getElementById('sidebar').classList.toggle('open');
+});
+</script>
+</body>
+</html>
