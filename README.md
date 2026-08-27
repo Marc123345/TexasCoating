@@ -1,12 +1,35 @@
-# Texas & Oklahoma Commercial Coating — Territory Map
+# Texas & Southern Oklahoma Commercial Coating — Territory Map
 
-Interactive territory map for commercial roof coating coverage across North, East and West Texas, plus the whole state of Oklahoma.
+Interactive territory map for commercial roof coating coverage across North, East and West Texas, plus southern Oklahoma over the Red River.
 
-**Coverage**
+**Southern Oklahoma** — added over the Red River, and deliberately NOT the
+whole state.
 
-- **Entire state of Oklahoma** — added north of the Red River. Tulsa and Oklahoma City hold the metro warehouse and manufacturing stock; between them it is ag buildings, grain elevators, poultry and light industrial, in the same hail belt. Drawn from real boundary data (687 points, vendored in `data/oklahoma-outline.js`) — the panhandle and the Red River are why that is real data rather than a hand-drawn box.
+- **Red River Band (OK)** — everything inside 60 road miles of the Denison
+  centre line: Ardmore (55 mi — closer than Paris, TX, and a bigger industrial
+  market: Michelin tyre plant, Valero refinery, I-35 distribution), Durant
+  (23 mi — Choctaw Nation HQ, casino resort, manufacturing), Colbert, Madill,
+  Tishomingo, Atoka.
+- **Oklahoma Second Ring** — 75–135 road miles, the same reach as the East
+  Texas pockets: Hugo, Ada, McAlester (Army Ammunition Plant), Idabel, Shawnee.
 
-**Texas zones**
+What is deliberately left out, and why:
+
+| | from Denison | why not |
+|---|---|---|
+| Oklahoma City | ~160 road mi | a day each way, against local contractors |
+| Tulsa | ~206 road mi | same |
+| Lawton, Duncan | ~148, ~117 mi | only 48 and 51 mi from **Wichita Falls** — they belong to that zone if it goes live |
+| Enid, Woodward | ~241, ~299 mi | too far |
+| Panhandle (Guymon) | ~420 mi | 105 mi from **Amarillo** — belongs to that end, not this one |
+
+There is no Oklahoma band polygon on the map, on purpose: the southern edge of
+this territory is the Red River, which wanders, and a straight-line band would
+put half of Grayson County, TX inside an Oklahoma zone. The two runs are drawn
+as routes — US-75/69 north and US-70/I-35 west — with working radii on the
+three anchors, because that is how they would actually be worked.
+
+**Texas zones****Texas zones**
 
 - US-75 Corridor Core (Sherman/Denison + semiconductor build-out)
 - East Wing — 50 mi (Bonham → Paris)
