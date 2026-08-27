@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Texas Commercial Coating Territory Map | RoofCoat Leads</title>
+<title>Texas &amp; Oklahoma Commercial Coating Territory Map | RoofCoat Leads</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺️</text></svg>">
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css" onerror="this.onerror=null;this.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'"/>
 <style>
@@ -11,7 +11,7 @@
     --bg:#0f1722; --panel:#16212f; --panel2:#1c2a3b; --line:#2a3b52;
     --text:#e8eef6; --muted:#93a4ba; --accent:#f5a623;
     --c-core:#2f80ed; --c-east:#27ae60; --c-west:#e67e22;
-    --c-pocket:#9b59b6; --c-wtx:#e74c3c; --c-oil:#f1c40f;
+    --c-pocket:#9b59b6; --c-wtx:#e74c3c;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%}
@@ -60,6 +60,11 @@
   }
   .zbtn:hover{background:#25384f}
 
+  /* The statewide card is a different kind of thing from a territory zone — it
+     is the ground the zones sit on rather than another zone — so it gets the
+     accent rail and a wash to set it apart from the list below it. */
+  .zone-card.tier-state{border-left:3px solid var(--accent);background:rgba(245,166,35,.07)}
+
   .note{
     background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.35);
     border-radius:10px;padding:10px 12px;font-size:11.5px;color:#f0d9ad;line-height:1.5;margin-top:14px;
@@ -105,8 +110,8 @@
 <header>
   <div class="logo">🛡️</div>
   <div>
-    <h1>Texas Commercial Coating — Territory Map</h1>
-    <div class="sub">US-75 corridor · North &amp; East Texas pockets · West Texas oil-rich expansion zones</div>
+    <h1>Texas &amp; Oklahoma Commercial Coating — Territory Map</h1>
+    <div class="sub">US-75 corridor · North &amp; East Texas pockets · West Texas expansion · statewide Oklahoma</div>
   </div>
   <div class="hdr-stats">
     <div class="stat"><b id="stMarkets">0</b><span>Markets</span></div>
@@ -118,10 +123,12 @@
 <div class="wrap">
   <button class="mob-toggle" id="mobToggle">☰ Zones</button>
   <aside id="sidebar">
-    <div class="side-title">Territory zones — click card to zoom, buttons to toggle</div>
+    <div class="side-title">Coverage — click card to zoom, buttons to toggle</div>
+    <div id="cardsState"></div>
+    <div class="side-title">Territory zones</div>
     <div id="zoneCards"></div>
     <div class="note">
-      <b>Oil-rich zones:</b> the Permian Basin, the East Texas Oil Field / Haynesville belt, and the historic North Texas fields carry dense stocks of metal-roofed industrial buildings — pipe yards, tank farms, processing plants — with heavy sun and hail exposure. Prime commercial coating demand, minimal ad competition.
+      <b>Oklahoma is new territory, not an extension.</b> The Red River is a state line, not a market boundary — the hail belt, the ag buildings and the metal industrial stock all carry straight over it. Tulsa and Oklahoma City are the two metro anchors; everything between them is the same thin-spread commercial roof stock the West Texas zones are built on.
     </div>
     <div class="foot">
       Prepared by <a href="https://roofcoatleads.com" target="_blank" rel="noopener">RoofCoat Leads</a> · radii are indicative and adjustable once live lead data shows where the best jobs come from.
@@ -132,9 +139,15 @@
 
 <script src="vendor/leaflet/leaflet.js"></script>
 <script>if(!window.L){document.write('<script src="https:\/\/unpkg.com\/leaflet@1.9.4\/dist\/leaflet.js"><\/script>')}</script>
+<script src="data/oklahoma-outline.js"></script>
 <script>
 /* ---------------------------------- data ---------------------------------- */
 const ZONES = {
+  ok: {
+    name:"Entire state of Oklahoma", color:"#f5a623", tier:"state",
+    desc:"The whole state, added north of the Red River. Tulsa and Oklahoma City carry the metro warehouse and manufacturing stock; the rest is ag buildings, grain elevators, poultry and light industrial spread thin — and the same hail belt that drives demand across the Texas side runs straight through it.",
+    center:[35.5,-97.5], zoom:7
+  },
   core: {
     name:"US-75 Corridor Core", color:"#2f80ed",
     desc:"Sherman/Denison center line. Semiconductor build-out (TI + GlobiTech multi-billion-dollar plants) is driving new commercial construction north along US-75.",
@@ -159,11 +172,6 @@ const ZONES = {
     name:"West Texas Expansion", color:"#e74c3c",
     desc:"Hail belt + brutal UV = constant coating demand. Cotton gins, grain elevators, feedlots, dairies, meatpacking and warehouse stock. Wichita Falls is the natural bridge from the current territory along US-82.",
     center:[32.9,-100.6], zoom:6
-  },
-  oil: {
-    name:"Oil-Rich Zones", color:"#f1c40f",
-    desc:"Permian Basin, East Texas Oil Field / Haynesville belt, and historic North Texas fields. Dense metal-roofed industrial stock: pipe yards, tank batteries, compressor stations, processing plants.",
-    center:[32.2,-99.5], zoom:6
   }
 };
 
@@ -207,26 +215,7 @@ const CITIES = [
   {n:"Abilene", z:"wtx", ll:[32.449,-99.733], b:"I-20 regional hub — warehouses, ag processing, Dyess AFB."},
   {n:"San Angelo", z:"wtx", ll:[31.464,-100.437], b:"Regional ag/industrial hub — wool, ag processing, oilfield services."},
   {n:"Lubbock", z:"wtx", ll:[33.578,-101.855], b:"~270k metro. Cotton gins, grain elevators, ag processing across the South Plains. Heart of the hail belt.", star:true},
-  {n:"Amarillo", z:"wtx", ll:[35.199,-101.845], b:"~270k metro. Feedlots, meatpacking, dairies — the Panhandle now holds one of the biggest dairy concentrations in the country."},
-
-  /* --- oil-rich zones --- */
-  {n:"Midland", z:"oil", ll:[31.997,-102.078], b:"Permian Basin HQ — office + oilfield service yards, tank farms, warehouses.", star:true},
-  {n:"Odessa", z:"oil", ll:[31.846,-102.368], b:"Permian's industrial workhorse — pipe yards, machine shops, processing."},
-  {n:"Andrews", z:"oil", ll:[32.319,-102.546], b:"Permian drilling country — oilfield service buildings."},
-  {n:"Seminole", z:"oil", ll:[32.719,-102.645], b:"Oil + irrigated ag mix on the Permian's north end."},
-  {n:"Big Spring", z:"oil", ll:[32.250,-101.478], b:"Refinery town on I-20 — heavy industrial roof stock."},
-  {n:"Snyder", z:"oil", ll:[32.718,-100.918], b:"Scurry County oilfields — service yards and compressor stations."},
-  {n:"Monahans", z:"oil", ll:[31.594,-102.892], b:"West Permian oilfield services."},
-  {n:"Pecos", z:"oil", ll:[31.423,-103.493], b:"Delaware Basin boom town — newest, most active drilling in the Permian."},
-  {n:"Longview", z:"oil", ll:[32.500,-94.740], b:"East Texas Oil Field anchor (~290k metro area) — fabrication, oilfield equipment, manufacturing.", star:true},
-  {n:"Kilgore", z:"oil", ll:[32.386,-94.876], b:"Historic heart of the East Texas Oil Field — oilfield service industry remains."},
-  {n:"Henderson", z:"oil", ll:[32.153,-94.799], b:"Oil + poultry mix — double demand profile."},
-  {n:"Carthage", z:"oil", ll:[32.157,-94.337], b:"Haynesville Shale gas hub — compressor stations and processing plants."},
-  {n:"Tyler", z:"oil", ll:[32.351,-95.301], b:"~240k metro — East Texas commercial anchor and oilfield legacy money."},
-  {n:"Burkburnett", z:"oil", ll:[34.098,-98.571], b:"Historic North Texas 'Boomtown' field just above Wichita Falls."},
-  {n:"Electra", z:"oil", ll:[34.029,-98.919], b:"'Pump Jack Capital of Texas' — legacy field with active service stock."},
-  {n:"Graham", z:"oil", ll:[33.107,-98.590], b:"Fort Worth Basin oil town — service yards, light industrial."},
-  {n:"Jacksboro", z:"oil", ll:[33.218,-98.159], b:"Fort Worth Basin / Barnett edge — gas infrastructure."}
+  {n:"Amarillo", z:"wtx", ll:[35.199,-101.845], b:"~270k metro. Feedlots, meatpacking, dairies — the Panhandle now holds one of the biggest dairy concentrations in the country."}
 ];
 
 /* semiconductor plants — special markers in the core */
@@ -237,10 +226,35 @@ const PLANTS = [
 
 /* ------------------------------- map setup -------------------------------- */
 const map = L.map('map',{zoomControl:true, attributionControl:true}).setView([32.7,-98.6], 6);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
-  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-  subdomains:'abcd', maxZoom:19
+/* ── ⚠ NOT CARTO ANY MORE, AND THIS WAS A LIVE DEFECT ──────────────────────
+   This map shipped on CARTO's `basemaps.cartocdn.com/dark_all`. It no longer
+   works keyless: every tile now comes back stamped "API KEY REQUIRED" in grey
+   diagonal text across the whole canvas. The markers still land in the right
+   places and the map still pans, so it reads as a rendering fault rather than
+   a licensing one — which is exactly why it went unnoticed.
+
+   Esri's World Dark Gray Canvas is free, needs no key, and is the closest
+   match to the dark UI this map is built around. `maxZoom:16` is its real
+   limit; asking for 19 gets blank tiles at close zoom.
+
+   The OSM layer below is a fallback, not a second basemap. If Esri ever starts
+   erroring the same way, `tileerror` swaps it in — light rather than dark, but
+   a legible map beats a watermarked one. */
+const base = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',{
+  attribution:'Tiles &copy; <a href="https://www.esri.com">Esri</a> &mdash; Esri, DeLorme, NAVTEQ',
+  maxZoom:16
 }).addTo(map);
+
+let swapped = false;
+base.on('tileerror', () => {
+  if(swapped) return;
+  swapped = true;
+  map.removeLayer(base);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom:19
+  }).addTo(map);
+});
 
 const groups = {};
 Object.keys(ZONES).forEach(k => groups[k] = L.layerGroup().addTo(map));
@@ -274,6 +288,22 @@ PLANTS.forEach(p=>{
 });
 
 /* -------- territory shapes -------- */
+
+/* Oklahoma. Added first so every Texas zone shape, radius and marker sits on
+   top of it — it is new ground, not another region competing with them.
+   Filled at 4%: enough to read as claimed territory at the opening zoom, faint
+   enough that it does not fight the Texas corridor band below. */
+if (window.OK_OUTLINE) {
+  const okShape = L.polygon(window.OK_OUTLINE, {
+    color:"#f5a623", weight:2, dashArray:"10 7", fillColor:"#f5a623", fillOpacity:.04
+  }).bindPopup(`<div class="pp"><h3>Entire state of Oklahoma</h3><span class="tag" style="background:#f5a623">Statewide</span><p>All of Oklahoma is in play. Tulsa and Oklahoma City hold the metro warehouse and manufacturing stock; between and around them it is ag buildings, grain elevators, poultry and light industrial — and the hail belt that drives demand on the Texas side runs straight through it.</p></div>`);
+  okShape.addTo(groups.ok);
+
+  /* Its own bounds become the card's zoom target, so "Zoom" frames the real
+     state rather than a guessed centre and radius. */
+  ZONES.ok.bounds = okShape.getBounds();
+}
+
 /* main corridor band: 50 mi east & west of US-75, Sherman/Denison center line */
 const corridor = L.polygon([
   [33.92,-97.90],[33.92,-95.50],[33.20,-95.50],[33.20,-97.90]
@@ -294,35 +324,23 @@ L.circle([33.08,-95.25],{radius:60000, color:"#9b59b6", weight:2, dashArray:"6 6
    .addTo(groups.wtx);
 });
 
-/* oil basin outlines */
-const permian = L.polygon([
-  [33.0,-103.6],[33.1,-101.6],[32.4,-100.7],[31.2,-101.0],[30.7,-102.6],[31.1,-104.0],[32.2,-104.1]
-],{color:"#f1c40f",weight:2,dashArray:"8 6",fillColor:"#f1c40f",fillOpacity:.05})
-.bindPopup(`<div class="pp"><h3>Permian Basin</h3><span class="tag" style="background:#f1c40f">Oil-rich zone</span><p>The most productive oilfield in the western hemisphere. Enormous stock of metal-roofed service yards, tank batteries, compressor stations and warehouses across Midland, Odessa, Andrews, Big Spring, Pecos and Monahans.</p></div>`);
-permian.addTo(groups.oil);
-
-const etxOil = L.polygon([
-  [32.75,-95.15],[32.75,-94.15],[31.95,-94.15],[31.95,-95.15]
-],{color:"#f1c40f",weight:2,dashArray:"8 6",fillColor:"#f1c40f",fillOpacity:.05})
-.bindPopup(`<div class="pp"><h3>East Texas Oil Field + Haynesville</h3><span class="tag" style="background:#f1c40f">Oil-rich zone</span><p>Historic giant field (Kilgore/Longview/Henderson) plus the Haynesville Shale gas belt around Carthage — fabrication shops, gas processing and compressor stations.</p></div>`);
-etxOil.addTo(groups.oil);
-
-const ntxOil = L.polygon([
-  [34.25,-99.05],[34.25,-98.05],[33.0,-98.0],[33.0,-98.75]
-],{color:"#f1c40f",weight:2,dashArray:"8 6",fillColor:"#f1c40f",fillOpacity:.05})
-.bindPopup(`<div class="pp"><h3>North Texas Oil Fields</h3><span class="tag" style="background:#f1c40f">Oil-rich zone</span><p>Historic Burkburnett/Electra fields and the Fort Worth Basin (Graham, Jacksboro). Closest oil-rich zone to the current territory — reachable via US-82/US-287.</p></div>`);
-ntxOil.addTo(groups.oil);
-
 /* -------------------------------- sidebar --------------------------------- */
 const counts = {};
 CITIES.forEach(c => counts[c.z]=(counts[c.z]||0)+1);
 counts.core += PLANTS.length;
+/* ⚠ The Oklahoma card carries no city markers yet — the state was added as
+   territory, not as a market list. A "0" badge there would read as "nothing
+   here" rather than "not pinned yet", so it shows the state's own label
+   instead. Swap this for a real count the moment OK cities go into CITIES. */
+counts.ok = "Statewide";
 document.getElementById('stMarkets').textContent = CITIES.length + PLANTS.length;
 
 const cardsEl = document.getElementById('zoneCards');
+const stateEl = document.getElementById('cardsState');
 Object.entries(ZONES).forEach(([k,z])=>{
   const card = document.createElement('div');
-  card.className='zone-card'; card.id='card-'+k;
+  card.className = 'zone-card' + (z.tier === 'state' ? ' tier-state' : '');
+  card.id='card-'+k;
   card.innerHTML = `
     <div class="zone-head">
       <span class="dot" style="background:${z.color}"></span>
@@ -341,18 +359,40 @@ Object.entries(ZONES).forEach(([k,z])=>{
       const key = btn.dataset.z;
       if(btn.dataset.act==='zoom'){
         if(!map.hasLayer(groups[key])){ groups[key].addTo(map); card.classList.remove('off'); }
-        map.flyTo(ZONES[key].center, ZONES[key].zoom, {duration:.9});
+        /* A state has real bounds; a zone only has a guessed centre and zoom.
+           Prefer the bounds where they exist so "Zoom" frames the whole shape
+           on any screen size instead of clipping its corners. */
+        if(ZONES[key].bounds) map.flyToBounds(ZONES[key].bounds, {padding:[28,28], duration:.9});
+        else map.flyTo(ZONES[key].center, ZONES[key].zoom, {duration:.9});
       }else{
         if(map.hasLayer(groups[key])){ map.removeLayer(groups[key]); card.classList.add('off'); }
         else { groups[key].addTo(map); card.classList.remove('off'); }
       }
       return;
     }
-    map.flyTo(z.center, z.zoom, {duration:.9});
+    if(z.bounds) map.flyToBounds(z.bounds, {padding:[28,28], duration:.9});
+    else map.flyTo(z.center, z.zoom, {duration:.9});
     if(window.innerWidth<=820) document.getElementById('sidebar').classList.remove('open');
   });
-  cardsEl.appendChild(card);
+  (z.tier === 'state' ? stateEl : cardsEl).appendChild(card);
 });
+
+/* ── ⚠ FIT TO WHAT IS ACTUALLY ON THE MAP, NOT TO A REMEMBERED CENTRE ──────
+   The opening view was `setView([32.7,-98.6], 6)`, chosen when the territory
+   stretched from the Permian Basin in the far west to the Haynesville belt in
+   the east. Removing the oil zones and adding Oklahoma moved the centre of
+   gravity a long way north-east in one edit, and that hardcoded centre left
+   the content crowded into the top-right corner with a third of the canvas
+   showing the Gulf of Mexico.
+
+   Deriving the view from the layers means it can never drift like that again:
+   add a zone, remove a zone, move a pin, and the opening frame follows. */
+const allBounds = L.latLngBounds([]);
+Object.values(groups).forEach(g => g.eachLayer(l => {
+  if (l.getBounds) allBounds.extend(l.getBounds());
+  else if (l.getLatLng) allBounds.extend(l.getLatLng());
+}));
+if (allBounds.isValid()) map.fitBounds(allBounds, {padding:[30,30]});
 
 /* hide city labels when zoomed way out to reduce clutter */
 function labelVisibility(){
