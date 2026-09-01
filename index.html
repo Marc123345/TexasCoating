@@ -142,7 +142,7 @@ const ZONES = {
   },
   okreach: {
     name:"Oklahoma Second Ring", color:"#16a085",
-    desc:"75-135 road miles out — the same reach as the East Texas pockets, and worked the same way. McAlester carries the Army Ammunition Plant and a real manufacturing base; Ada has cement and manufacturing; Shawnee sits on I-40 distribution.",
+    desc:"75-120 road miles out — the same reach as the East Texas pockets, and worked the same way. McAlester carries the Army Ammunition Plant and a real manufacturing base; Hugo is ag and rail east along US-70; Idabel is timber and ag in the south-east corner.",
     center:[34.60,-96.20], zoom:8
   },
   core: {
@@ -167,8 +167,12 @@ const ZONES = {
   },
   wtx: {
     name:"West Texas Expansion", color:"#e74c3c",
-    desc:"Hail belt + brutal UV = constant coating demand. Cotton gins, grain elevators, feedlots, dairies, meatpacking and warehouse stock. Wichita Falls is the natural bridge from the current territory along US-82.",
-    center:[32.9,-100.6], zoom:6
+    desc:"Hail belt + brutal UV = constant coating demand. Ag processing, oilfield services, warehouse stock and two air force bases. Wichita Falls is the natural bridge from the current territory along US-82.",
+    /* Re-centred when Lubbock and Amarillo came out. The view was framed to
+       reach -101.9 for the Panhandle; the westernmost market is now San Angelo
+       at -100.4, so at the old centre and zoom a third of the frame was empty
+       plains. Centroid of the three that remain, one step closer in. */
+    center:[32.6,-99.55], zoom:7
   }
 };
 
@@ -215,19 +219,15 @@ const CITIES = [
   {n:"Tishomingo, OK", z:"okband", ll:[34.2359,-96.6786], b:"Small-town commercial and county seat stock, 42 road miles."},
   {n:"Atoka, OK", z:"okband", ll:[34.3859,-96.1281], b:"US-69 light industrial and trucking, 60 road miles north on the McAlester run."},
 
-  /* --- oklahoma second ring — 75-135 road miles --- */
+  /* --- oklahoma second ring — 75-120 road miles --- */
   {n:"Hugo, OK", z:"okreach", ll:[34.0109,-95.5111], b:"Ag and rail stock east along US-70, 75 road miles."},
-  {n:"Ada, OK", z:"okreach", ll:[34.7745,-96.6783], b:"Manufacturing and cement — a genuine industrial base at 86 road miles."},
   {n:"McAlester, OK", z:"okreach", ll:[34.9334,-95.7697], b:"Army Ammunition Plant plus a real manufacturing base. 113 road miles up US-69 — the furthest of these worth a routed day.", star:true},
   {n:"Idabel, OK", z:"okreach", ll:[33.8951,-94.8261], b:"Timber and ag in the south-east corner, 120 road miles — pairs with the Paris/east-wing end rather than with Denison."},
-  {n:"Shawnee, OK", z:"okreach", ll:[35.3273,-96.9253], b:"I-40 distribution, 135 road miles. The northern limit of a same-day round trip."},
 
   /* --- west texas expansion --- */
   {n:"Wichita Falls", z:"wtx", ll:[33.914,-98.493], b:"~100 mi west of the current Bowie edge along US-82 — the natural first extension. Manufacturing base + Sheppard AFB.", star:true},
   {n:"Abilene", z:"wtx", ll:[32.449,-99.733], b:"I-20 regional hub — warehouses, ag processing, Dyess AFB."},
-  {n:"San Angelo", z:"wtx", ll:[31.464,-100.437], b:"Regional ag/industrial hub — wool, ag processing, oilfield services."},
-  {n:"Lubbock", z:"wtx", ll:[33.578,-101.855], b:"~270k metro. Cotton gins, grain elevators, ag processing across the South Plains. Heart of the hail belt.", star:true},
-  {n:"Amarillo", z:"wtx", ll:[35.199,-101.845], b:"~270k metro. Feedlots, meatpacking, dairies — the Panhandle now holds one of the biggest dairy concentrations in the country."}
+  {n:"San Angelo", z:"wtx", ll:[31.464,-100.437], b:"Regional ag/industrial hub — wool, ag processing, oilfield services."}
 ];
 
 /* semiconductor plants — special markers in the core */
@@ -315,7 +315,7 @@ L.circle([33.08,-95.25],{radius:60000, color:"#9b59b6", weight:2, dashArray:"6 6
  .addTo(groups.pocket);
 
 /* west texas metro circles */
-[[33.578,-101.855,"Lubbock / South Plains"],[35.199,-101.845,"Amarillo / Panhandle"],[33.914,-98.493,"Wichita Falls"],[32.449,-99.733,"Abilene"],[31.464,-100.437,"San Angelo"]].forEach(([la,lo,nm])=>{
+[[33.914,-98.493,"Wichita Falls"],[32.449,-99.733,"Abilene"],[31.464,-100.437,"San Angelo"]].forEach(([la,lo,nm])=>{
   L.circle([la,lo],{radius:55000,color:"#e74c3c",weight:1.5,dashArray:"4 6",fillColor:"#e74c3c",fillOpacity:.05})
    .bindPopup(`<div class="pp"><h3>${nm}</h3><span class="tag" style="background:#e74c3c">Expansion market</span><p>Hail belt + high UV — steady commercial coating demand.</p></div>`)
    .addTo(groups.wtx);

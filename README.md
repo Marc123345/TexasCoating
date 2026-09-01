@@ -10,8 +10,8 @@ whole state.
   market: Michelin tyre plant, Valero refinery, I-35 distribution), Durant
   (23 mi — Choctaw Nation HQ, casino resort, manufacturing), Colbert, Madill,
   Tishomingo, Atoka.
-- **Oklahoma Second Ring** — 75–135 road miles, the same reach as the East
-  Texas pockets: Hugo, Ada, McAlester (Army Ammunition Plant), Idabel, Shawnee.
+- **Oklahoma Second Ring** — 75–120 road miles, the same reach as the East
+  Texas pockets: Hugo, McAlester (Army Ammunition Plant), Idabel.
 
 What is deliberately left out, and why:
 
@@ -21,7 +21,7 @@ What is deliberately left out, and why:
 | Tulsa | ~206 road mi | same |
 | Lawton, Duncan | ~148, ~117 mi | only 48 and 51 mi from **Wichita Falls** — they belong to that zone if it goes live |
 | Enid, Woodward | ~241, ~299 mi | too far |
-| Panhandle (Guymon) | ~420 mi | 105 mi from **Amarillo** — belongs to that end, not this one |
+| Panhandle (Guymon) | ~420 mi | far outside any zone on this map |
 
 There is no Oklahoma band polygon on the map, on purpose: the southern edge of
 this territory is the Red River, which wanders, and a straight-line band would
@@ -35,7 +35,20 @@ three anchors, because that is how they would actually be worked.
 - East Wing — 50 mi (Bonham → Paris)
 - West Wing — 50 mi (Gainesville → Bowie)
 - East Texas Pockets (poultry / dairy / food processing belt + Greenville I-30 connector)
-- West Texas Expansion (Wichita Falls, Abilene, San Angelo, Lubbock, Amarillo)
+- West Texas Expansion (Wichita Falls, Abilene, San Angelo)
+
+## Removed markets
+
+Lubbock and Amarillo (West Texas) and Ada and Shawnee (Oklahoma) were on this
+map and are not any more. Ada and Shawnee were the two northernmost Oklahoma
+pins, so "southern Oklahoma" describes what is left more exactly than it did
+before; Shawnee at 135 road miles was also what set the second ring's outer
+figure, which is now 120 (Idabel).
+
+Lubbock and Amarillo were the two largest West Texas metros and both were
+~270k. Dropping them leaves Wichita Falls, Abilene and San Angelo, so the
+zone's view was re-centred — it had been framed to reach the Panhandle at
+-101.9 and would otherwise open on a third of a screen of empty plains.
 
 **Stack:** single static `index.html` + vendored [Leaflet](https://leafletjs.com) 1.9.4 + vendored state boundary + Esri dark basemap. No build step.
 
